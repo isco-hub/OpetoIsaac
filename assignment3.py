@@ -1,13 +1,6 @@
 import random
 import time
 
-# ============================================================
-# DATASET: 48 national teams (2026 FIFA World Cup)
-# Columns: GOAT effect, Last WC rank, Continental Cups, FIFA rank,
-#   Strength, Form, Injuries, Coach rank, Fan support,
-#   Players in EPL/La Liga/Serie A/Bundesliga/Ligue 1/Other,
-#   Avg age, WC experience, Keeper/Defender/Midfielder/Forward rating
-# ============================================================
 teams_data = {
     "Mexico":       {"goat":0,"last_wc":22,"cont_cups":12,"fifa_rank":14,"strength":81.2,"form":10,"injuries":1,"coach":18,"fan":5,"epl":2,"laliga":3,"seriea":1,"bundes":0,"ligue1":1,"other":19,"age":27.3,"wc_exp":9,"keeper":79,"defender":80,"midfielder":82,"forward":79},
     "South Korea":  {"goat":0,"last_wc":16,"cont_cups":2,"fifa_rank":25,"strength":79.8,"form":13,"injuries":0,"coach":21,"fan":4,"epl":3,"laliga":0,"seriea":0,"bundes":3,"ligue1":1,"other":19,"age":26.9,"wc_exp":11,"keeper":76,"defender":82,"midfielder":84,"forward":85},
@@ -59,9 +52,6 @@ teams_data = {
     "Panama":       {"goat":0,"last_wc":0,"cont_cups":0,"fifa_rank":42,"strength":74.5,"form":7,"injuries":0,"coach":29,"fan":3,"epl":0,"laliga":0,"seriea":0,"bundes":0,"ligue1":1,"other":25,"age":27.2,"wc_exp":2,"keeper":77,"defender":73,"midfielder":74,"forward":72},
 }
 
-# ============================================================
-# Helper functions
-# ============================================================
 def slow_print(text, delay=0.03):
     for char in text:
         print(char, end="", flush=True)
@@ -119,9 +109,6 @@ def display_team_status(team):
     print(f"  {team:15s} | Strength: {d['strength']:.1f} (eff: {eff:.1f}) | Form: {d['form']}/15 | Injuries: {d['injuries']} | FIFA: {d['fifa_rank']} | WC Exp: {d['wc_exp']}")
 
 
-# ============================================================
-# GROUP STAGE — 12 groups of 4, top 2 + 8 best 3rd-placed advance
-# ============================================================
 REAL_GROUPS = {
     "A": ["Mexico", "South Korea", "South Africa", "Czech Rep."],
     "B": ["Canada", "Switzerland", "Qatar", "Bosnia"],
@@ -158,7 +145,6 @@ def run_group_stage(groups, user_team):
             user_group = label
             break
 
-    # Match day pairings: (home_idx, away_idx) for each match day
     match_days = [(0, 1, 2, 3), (0, 2, 1, 3), (0, 3, 1, 2)]
 
     for md_idx, (i1, j1, i2, j2) in enumerate(match_days):
@@ -200,7 +186,6 @@ def run_group_stage(groups, user_team):
         if md_idx < 2:
             input("\n  Press Enter for the next match day...")
 
-    # Display final group standings for all groups (printed instantly, no slow_print)
     print("\n--- FINAL GROUP STANDINGS ---")
     for label in sorted(standings.keys()):
         table = sorted(standings[label].items(), key=lambda x: (-x[1]["pts"], -x[1]["gd"], -x[1]["gf"]))
@@ -209,7 +194,6 @@ def run_group_stage(groups, user_team):
             flag = " <- YOU" if t == user_team else ""
             print(f"  {rank}. {t:22s} {s['pts']}pts  GD: {s['gd']:+d}  GF: {s['gf']}  GA: {s['ga']}{flag}")
 
-    # Determine advancing teams
     group_winners = []
     group_runners = []
     third_placed = []
@@ -240,9 +224,6 @@ def run_group_stage(groups, user_team):
     return advancing_set, group_winners, group_runners, best_third
 
 
-# ============================================================
-# KNOCKOUT STAGES — R32, R16, QF, SF, Final (+ 3rd place)
-# ============================================================
 def draw_knockout_bracket(group_winners, group_runners, best_third):
     slow_print("\n--- DRAWING KNOCKOUT BRACKET ---")
     bracket_teams = [t for _, t in group_winners] + [t for _, t in group_runners] + [t for _, _, _, _, _ in best_third]
@@ -329,7 +310,6 @@ def knockout_round(teams_left, round_name, user_team):
             other_results.append(f"  {a:22s} {gf:.0f} - {ga:.0f} {b:22s}  -> {winner} advances")
             winners.append(winner)
 
-    # Print user result first, then all other results
     if user_result:
         slow_print(user_result)
     if other_results:
@@ -356,9 +336,6 @@ def third_place_match(team_a, team_b, user_team):
     return third
 
 
-# ============================================================
-# PRE-TOURNAMENT PREPARATION
-# ============================================================
 def pre_tournament_prep(team):
     slow_print(f"\n--- PRE-TOURNAMENT PREPARATION ---")
     slow_print(f"Manager, you have 3 preparation sessions before the World Cup.")
@@ -419,16 +396,12 @@ def pre_tournament_prep(team):
     display_team_status(team)
 
 
-# ============================================================
-# MAIN SIMULATION
-# ============================================================
 def main():
     slow_print("=" * 60)
     slow_print("     2026 FIFA WORLD CUP — TEAM MANAGER SIMULATOR")
     slow_print("          48 Teams | 12 Groups | 32 Knockout")
     slow_print("=" * 60)
 
-    # Display teams
     slow_print("\nSelect your team:")
     sorted_teams = sorted(teams_data.items(), key=lambda x: (-x[1]["strength"], x[1]["fifa_rank"]))
     for i, (name, d) in enumerate(sorted_teams, 1):
@@ -436,7 +409,6 @@ def main():
         if i % 12 == 0:
             print()
 
-    # Team selection loop
     while True:
         choice = input("\nEnter team name: ").strip().title()
         if choice in teams_data:
@@ -445,7 +417,6 @@ def main():
         if choice.lower() in alt:
             choice = alt[choice.lower()]
             break
-        # handle "Bosnia" matching "Bosnia"
         for k in teams_data:
             if choice.lower() in k.lower():
                 choice = k
@@ -458,11 +429,9 @@ def main():
     display_team_status(choice)
     input("\nPress Enter to begin...")
 
-    # Phase 1: Preparation
     pre_tournament_prep(choice)
     input("\nPress Enter for the Group Stage draw...")
 
-    # Phase 2: Group Stage
     groups = build_groups()
     advancing, group_winners, group_runners, best_third = run_group_stage(groups, choice)
 
@@ -473,7 +442,6 @@ def main():
     else:
         input("\nPress Enter for the Knockout Stage draw...")
 
-    # Phase 3: Knockout
     bracket_teams = [t for _, t in group_winners] + [t for _, t in group_runners] + [t for (_, t, _, _, _) in best_third]
     random.shuffle(bracket_teams)
 
@@ -494,7 +462,6 @@ def main():
             slow_print(f"\n{choice} is eliminated. The tournament continues...")
             user_eliminated = True
 
-    # Final
     if not user_eliminated:
         input("\nPress Enter for the FINAL...")
     bracket_teams, _ = knockout_round(bracket_teams, "FINAL", choice)
@@ -504,7 +471,6 @@ def main():
         slow_print(f"  {choice} ARE THE 2026 FIFA WORLD CUP CHAMPIONS!!!")
         slow_print("=" * 60)
     else:
-        # Show who won
         slow_print("\n" + "=" * 60)
         slow_print(f"  {bracket_teams[0]} ARE THE 2026 FIFA WORLD CUP CHAMPIONS!!!")
         slow_print("=" * 60)
