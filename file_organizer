@@ -1,0 +1,145 @@
+#!/usr/bin/env python3
+"""File Organizer — sorts a cluttered folder into categorized subdirectories."""
+
+import os
+import shutil
+import argparse
+from collections import defaultdict
+
+CATEGORIES = {
+    "Images":     {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".svg", ".webp", ".ico", ".tiff"},
+    "Documents":  {".pdf", ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+                   ".odt", ".ods", ".odp", ".csv", ".txt", ".rtf", ".md"},
+    "Audio":      {".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a", ".wma"},
+    "Video":      {".mp4", ".avi", ".mkv", ".mov", ".wmv", ".flv", ".webm"},
+    "Archives":   {".zip", ".rar", ".tar", ".gz", ".bz2", ".xz", ".7z", ".iso"},
+    "Code":       {".py", ".js", ".ts", ".html", ".css", ".java", ".cpp", ".c",
+                   ".h", ".hpp", ".rs", ".go", ".rb", ".php", ".swift", ".kt",
+                   ".sh", ".bat", ".ps1", ".sql", ".json", ".xml", ".yaml", ".yml",
+                   ".toml", ".ini", ".cfg", ".env", ".dockerfile"},
+    "Torrents":   {".torrent"},
+    "Executables": {".exe", ".msi", ".appimage", ".deb", ".rpm", ".dmg"},
+    "Fonts":      {".ttf", ".otf", ".woff", ".woff2", ".eot"},
+    "3D_Models":  {".stl", ".obj", ".fbx", ".glb", ".gltf", ".blend"},
+}
+
+UNCATEGORIZED = "Other"
+
+
+def classify(filename):
+    """Return the category name for a given filename."""
+    _, ext = os.path.splitext(filename)
+    ext = ext.lower()
+    for cat, exts in CATEGORIES.items():
+        if ext in exts:
+            return cat
+    return UNCATEGORIZED
+
+
+def dry_run_report(files_by_cat, target):
+    """Print a preview of what would happen."""
+    print(f"\n{'='*55}")
+    print(f"  DRY RUN — {target}")
+    print(f"{'='*55}")
+    total = 0
+    for cat in sorted(files_by_cat):
+        items = files_by_cat[cat]
+        print(f"\n  [{cat}] — {len(items)} file(s)")
+        for f in sorted(items):
+            print(f"    → {cat}/{f}")
+        total += len(items)
+    print(f"\n  Total files to organise: {total}")
+
+
+def organise(target, dry=True):
+    """Move files in *target* into category subdirectories."""
+    if not os.path.isdir(target):
+        print(f"Error: '{target}' is not a directory.")
+        return
+
+    files_by_cat = defaultdict(list)
+
+    for entry in os.scandir(target):
+        if entry.is_file() and not entry.name.startswith("."):
+            cat = classify(entry.name)
+            files_by_cat[cat].append(entry.name)
+
+    if not files_by_cat:
+        print("Nothing to organise — folder is already clean.")
+        return
+
+    if dry:
+        dry_run_report(files_by_cat, target)
+        return
+
+    moved = 0
+    for cat, filenames in files_by_cat.items():
+        dest_dir = os.path.join(target, cat)
+        os.makedirs(dest_dir, exist_ok=True)
+        for fname in filenames:
+            src = os.path.join(target, fname)
+            dst = os.path.join(dest_dir, fname)
+            if os.path.exists(dst):
+                base, ext = os.path.splitext(fname)
+                counter = 1
+                while os.path.exists(dst):
+                    dst = os.path.join(dest_dir, f"{base}_{counter}{ext}")
+                    counter += 1
+            shutil.move(src, dst)
+            moved += 1
+
+    print(f"\n✔ Moved {moved} file(s) into {len(files_by_cat)} categor(ies).")
+
+
+def undo(target):
+    """Move all files back from category folders to the root."""
+    if not os.path.isdir(target):
+        print(f"Error: '{target}' is not a directory.")
+        return
+
+    restored = 0
+    for entry in os.scandir(target):
+        if entry.is_dir() and entry.name in CATEGORIES or entry.name == UNCATEGORIZED:
+            for item in os.scandir(entry.path):
+                if item.is_file():
+                    dst = os.path.join(target, item.name)
+                    if os.path.exists(dst):
+                        base, ext = os.path.splitext(item.name)
+                        counter = 1
+                        while os.path.exists(dst):
+                            dst = os.path.join(target, f"{base}_restored_{counter}{ext}")
+                            counter += 1
+                    shutil.move(item.path, dst)
+                    restored += 1
+            if not any(os.scandir(entry.path)):
+                os.rmdir(entry.path)
+
+    print(f"\n↩ Restored {restored} file(s) back to {target}.")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Organise a cluttered folder into category subdirectories."
+    )
+    parser.add_argument("target", nargs="?", default=os.path.expanduser("~/Downloads"),
+                        help="Folder to organise (default: ~/Downloads)")
+    parser.add_argument("--dry-run", "-n", action="store_true",
+                        help="Preview changes without moving anything")
+    parser.add_argument("--undo", action="store_true",
+                        help="Undo — move files back from categories to root")
+    parser.add_argument("--categories", action="store_true",
+                        help="List file categories and their extensions")
+
+    args = parser.parse_args()
+
+    if args.categories:
+        print("Category  →  Extensions\n")
+        for cat, exts in sorted(CATEGORIES.items()):
+            print(f"  {cat:15s}  {', '.join(sorted(exts))}")
+        print(f"  {'Other':15s}  everything else")
+        raise SystemExit(0)
+
+    if args.undo:
+        undo(args.target)
+    else:
+        organise(args.target, dry=args.dry_run)
