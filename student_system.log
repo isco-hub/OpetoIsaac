@@ -1,0 +1,20 @@
+2026-06-28 19:35:54 | INFO     | SYSTEM STARTED — Student Record Management System
+2026-06-28 19:35:54 | INFO     | ADDED student 23-1101 — Alice Mendoza
+2026-06-28 19:35:54 | INFO     | ADDED student 23-1102 — Bob Santos
+2026-06-28 19:35:54 | INFO     | ADDED student 23-1103 — Charlie Reyes
+2026-06-28 19:35:54 | INFO     | ADDED student 23-1104 — Diana Cruz
+2026-06-28 19:35:54 | INFO     | ADDED student 23-1105 — Ethan Lim
+2026-06-28 19:35:54 | INFO     | VIEW ALL — displayed 5 student(s).
+2026-06-28 19:35:54 | INFO     | SEARCH — found 23-1102.
+2026-06-28 19:35:54 | WARNING  | SEARCH — No student found with reg_no 99-9999.
+2026-06-28 19:35:54 | INFO     | UPDATED student 23-1101.
+2026-06-28 19:35:54 | WARNING  | ADD rejected — Student 23-1102 already exists.
+2026-06-28 19:35:54 | WARNING  | ADD rejected — Registration number must be in format XX-XXXX.
+2026-06-28 19:35:54 | INFO     | DELETED student 23-1105.
+2026-06-28 19:35:54 | INFO     | SUMMARY — 4 CSV, 4 JSON entries.
+2026-06-28 19:35:54 | ERROR    | Error reading CSV: [Errno 2] No such file
+2026-06-28 19:35:54 | ERROR    | Invalid JSON file: Expecting value: line 1 column 1
+2026-06-28 19:35:54 | INFO     | SYSTEM EXITED — user chose option 7.
+2026-06-28 19:39:16 | WARNING  | System interrupted by user (Ctrl+C).
+2026-06-28 19:39:49 | WARNING  | ADD rejected — Registration number must be in format XX-XXXX (e.g. 23-1102).
+2026-06-28 19:40:17 | INFO     | VIEW ALL — displayed 5 student(s).

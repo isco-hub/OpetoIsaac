@@ -1,0 +1,37 @@
+{
+    "23-1101": {
+        "address": "123 Main St, Manila",
+        "contact_no": "+639123456789",
+        "guardian_name": "John Mendoza",
+        "guardian_contact": "+639987654321",
+        "notes": "Loves AI/ML"
+    },
+    "23-1102": {
+        "address": "456 Oak Ave, Quezon City",
+        "contact_no": "+639112233445",
+        "guardian_name": "Maria Santos",
+        "guardian_contact": "+639998877665",
+        "notes": "Transfer student"
+    },
+    "23-1103": {
+        "address": "789 Pine Rd, Cebu",
+        "contact_no": "+639556677889",
+        "guardian_name": "Pedro Reyes",
+        "guardian_contact": "+639554433221",
+        "notes": "Needs math tutoring"
+    },
+    "23-1104": {
+        "address": "321 Acacia St, Davao",
+        "contact_no": "+639998887766",
+        "guardian_name": "Luz Cruz",
+        "guardian_contact": "+639997776655",
+        "notes": "Dean's lister"
+    },
+    "23-1105": {
+        "address": "654 Cherry Rd, Baguio",
+        "contact_no": "+639991234567",
+        "guardian_name": "Wei Lim",
+        "guardian_contact": "+639998765432",
+        "notes": "Part-time working student"
+    }
+}
